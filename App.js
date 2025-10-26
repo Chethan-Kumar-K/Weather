@@ -7,16 +7,16 @@ import DateTime from './components/DateTime';
 import WeatherScroll from './components/WeatherScroll';
 import SearchBar from './components/SearchBar';
 
-const API_KEY = "API_KEY";   // Replace with your OpenWeatherMap API key
+const API_KEY = "5a744117d5f6a9eeae9674a0b790ab97";   // Replace with your OpenWeatherMap API key
 const img = require('./assets/weatherBG1.jpg');
 
 export default function App() {
   const [data, setData ]= useState({
-    current: null,
-    daily: [],
-    lat: null,
-    lon: null,
-    timezone: null
+   current: null,
+   daily: [],
+   lat: null,
+   lon: null,
+   timezone: null
   });
 
   useEffect(() => {
