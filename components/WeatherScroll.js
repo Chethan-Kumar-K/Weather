@@ -2,13 +2,20 @@ import React from 'react'
 import{ View, ScrollView, Image, Text, StyleSheet } from 'react-native'
 import FutureForecast from './FutureForecast'
 
-const WeatherScroll = ({weatherData}) => {
+const WeatherScroll = ({weatherData, locationName}) => {
     console.log('WeatherScroll - received weatherData:', weatherData);
     console.log('WeatherScroll - weatherData type:', typeof weatherData);
     console.log('WeatherScroll - weatherData length:', weatherData ? weatherData.length : 'N/A');
 
+// Derive a safe display name: explicit prop > API city name > fallback
+    const displayLocation =
+        locationName ||
+        (weatherData && weatherData.city && weatherData.city.name) ||
+        (Array.isArray(weatherData) && weatherData.length > 0 && weatherData[0]?.name) ||
+        'Current Location';
+
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
         <CurrentTempEl data={weatherData && weatherData.length > 0 ? weatherData[0] : {}}/>
         <FutureForecast weatherData={weatherData || []}/>
     </ScrollView>
@@ -52,6 +59,23 @@ const styles = StyleSheet.create({
         flex: 2,
         backgroundColor:"rgba(230, 241, 240, 0)",
         padding: 40,
+    },
+        contentContainer:{
+        paddingBottom: 40,
+    },
+    locationHeader:{
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    locationText:{
+        fontSize: 22,
+        fontWeight: '800',
+        color: 'black',
+        backgroundColor: 'rgba(255,255,255,0.6)',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
+        overflow: 'hidden',
     },
     image:{
         width: 80,

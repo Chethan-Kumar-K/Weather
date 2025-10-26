@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, Image, StyleSheet } from 'react-native'
+import { View, Text, Image, StyleSheet, ScrollView } from 'react-native'
 
 const FutureForecast = ({weatherData}) => {
     console.log('FutureForecast - received weatherData:', weatherData);
@@ -16,6 +16,7 @@ const FutureForecast = ({weatherData}) => {
 
 return (
     <View style={{flexDirection: 'column', marginTop: 16}}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
             {
                 weatherData && weatherData.length > 0 ?
                 weatherData.map((data, idx) => (
@@ -26,6 +27,7 @@ return (
                     <Text style={styles.noDataText}>No forecast data available</Text>
                 </View>
             }
+        </ScrollView>
         </View>
   )
 }
@@ -57,39 +59,38 @@ const FutureForecastItem = ({forecastItem}) => {
 }
 
 const styles = StyleSheet.create({
+    horizontalList:{
+        paddingHorizontal: 10,
+    },
     image:{
         width: 50,
         height: 50,
     },
     futureForecastItemContainer:{
-        flexDirection:"row",
+        width: 110,
+        marginRight: 12,
+        flexDirection:"column",
         backgroundColor:"rgba(197, 212, 217, 0.37)",
-        justifyContent:"column",
+        justifyContent:"center",
         alignItems:"center",
-        borderRadius: 16,
+        borderRadius: 12,
         borderColor:"rgba(202, 215, 219, 0.02)",
         borderWidth: 1,
-        marginBottom: 20,
-        padding: 20,
+        padding: 12,
     },
     day:{
-        fontSize: 20,
-        color: "black",
-        backgroundColor:"rgba(59, 63, 64, 0)",
-        padding: 12,
-        textAlign: "center",
-        borderRadius: 16,
-        fontWeight: "bold",
-        marginBottom: 8,
-        fontFamily: "AvenirNext-Regular",
-    },
-    temp:{
         fontSize: 16,
         color: "black",
-        backgroundColor:"rgba(197, 212, 217, 0.01)",
+        paddingVertical: 6,
         textAlign: "center",
-        fontWeight: "bold",
-        marginTop: 8,
+        fontWeight: "700",
+    },
+    temp:{
+        fontSize: 14,
+        color: "black",
+        textAlign: "center",
+        fontWeight: "700",
+        marginTop: 6,
     },
     description:{
         fontSize: 12,

@@ -13,7 +13,7 @@ const WeatherItem = ({title, value, unit}) => {
     )
 }
 
-const DateTime = ({current, lat, lon, timezone}) => {
+const DateTime = ({current, lat, lon, timezone, locationName}) => {
     const [date, setDate] = useState('')
     const [time, setTime] = useState('')
 
@@ -83,6 +83,11 @@ const DateTime = ({current, lat, lon, timezone}) => {
         <View style={styles.container}>
             <View>
                 <View>
+                    <Text style={styles.locationDisplay}>
+                        {locationName || 'Current Location'}
+                    </Text>
+                </View>
+                <View>
                     <Text style={styles.heading}>{time}</Text>
                 </View>
                 <View>
@@ -123,6 +128,13 @@ const DateTime = ({current, lat, lon, timezone}) => {
     )
 }
 const styles = StyleSheet.create({
+    locationDisplay: {
+        fontSize: 28,
+        color: "black",
+        fontWeight: "600",
+        marginBottom: 8,
+        fontFamily: "AvenirNext-Regular",
+    },
     container:{
         flex: 1.5,
         flexDirection:"row",

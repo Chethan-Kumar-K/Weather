@@ -53,7 +53,7 @@ export default function App() {
         return;
       }
 
-      const { lat, lon } = geocodeData[0];
+      const { lat, lon, } = geocodeData[0];
       await fetchDataFromApi(lat, lon);
     } catch (error) {
       console.error('Error searching location:', error);
@@ -80,6 +80,7 @@ export default function App() {
         lat: currentData.coord.lat,
         lon: currentData.coord.lon,
         timezone: currentData.timezone, // Note: this will be offset in seconds
+        cityName: currentData.name,
         current: {
           temp: currentData.main.temp,
           humidity: currentData.main.humidity,
@@ -110,7 +111,8 @@ export default function App() {
         current={data.current} 
         timezone={data.timezone} 
         lat={data.lat} 
-        lon={data.lon}/>
+        lon={data.lon}
+        locationName={data.cityName}/>
         <WeatherScroll weatherData={data.daily}/>
       </ImageBackground>
     </View>
