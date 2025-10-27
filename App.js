@@ -4,6 +4,8 @@ import { StyleSheet, Text, View, ImageBackground, Alert } from 'react-native';
 import * as Location from 'expo-location';
 import * as SplashScreen from 'expo-splash-screen';
 
+import AppSplash from './components/SplashScreen'; // in-app splash
+
 import DateTime from './components/DateTime';
 import WeatherScroll from './components/WeatherScroll';
 import SearchBar from './components/SearchBar';
@@ -19,7 +21,8 @@ export default function App() {
    daily: [],
    lat: null,
    lon: null,
-   timezone: null
+   timezone: null,
+   cityName: null
   });
   const [appIsReady, setAppIsReady] = useState(false);
 
@@ -58,58 +61,56 @@ export default function App() {
 
       console.log('Combined weather data:', combinedData);
       setData(combinedData);
-      
+      return true;
     } catch (error) {
       console.error('Error fetching weather data:', error);
       Alert.alert('Weather Error', 'Failed to fetch weather data. Please try again.');
+      return false;
     }
   };
 
-  const onLayoutRootView = useCallback(async () => {
-    if (appIsReady) {
-      await SplashScreen.hideAsync();
-    }
-  }, [appIsReady]); 
-  if (!appIsReady) {
-    return null;
-  }
-
  const getCurrentLocationWeather = async () => {
     try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert(
-          'Permission Denied',
-          'Please grant location permissions to use this app',
-          [{ text: 'OK' }]
-        );
-        return;
-        // Default to New York if permission denied
-        //fetchDataFromApi(40.7128, -74.0060);
+        console.log('Location permission denied, using default location');
+        return await fetchDataFromApi(40.7128, -74.0060); // New York coordinates
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      fetchDataFromApi(location.coords.latitude, location.coords.longitude);
+      const location = await Location.getCurrentPositionAsync({});
+      return await fetchDataFromApi(location.coords.latitude, location.coords.longitude);
     } catch (error) {
-      console.error('Error getting current location:', error);
-      fetchDataFromApi(40.7128, -74.0060); // Fallback to New York
+      console.error('Error getting location:', error);
+      return await fetchDataFromApi(40.7128, -74.0060); // Fallback to New York
     }
   };
 
     useEffect(() => {
-        async function prepare() {
-      try {
+      async function prepare() {
+        try {
         await getCurrentLocationWeather();
-        // Add a small delay for smooth transition
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setAppIsReady(true);
-      } catch (e) {
-        console.warn(e);
+      } catch (error) {
+        console.warn('Error during initialization:', error);
+      } finally {
+        // Set app as ready regardless of success/failure
         setAppIsReady(true);
       }
     }
     prepare();
   }, [])
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      // Hide splash screen once layout is ready
+      await SplashScreen.hideAsync().catch(console.warn);
+    }
+  }, [appIsReady]);
+
+  if (!appIsReady) {
+  //  return null;
+  // show the in-app splash component while native splash is still visible
+    return <AppSplash />;
+  }
 
  const searchLocationWeather = async (locationName) => {
     try {

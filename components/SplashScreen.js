@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet, Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
 
 const SplashScreen = () => {
   return (
@@ -19,10 +21,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#87CEEB',
     alignItems: 'center',
     justifyContent: 'center',
+    width: width,
+    height: height,
   },
   image: {
-    width: '50%',
-    height: '50%',
+    width: width * 0.7, // 70% of screen width
+    height: height * 0.7, // 70% of screen height
+    maxWidth: 300,
+    maxHeight: 300,
   },
 });
 
