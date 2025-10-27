@@ -1,13 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useCallback} from 'react';
 import { StyleSheet, Text, View, ImageBackground, Alert } from 'react-native';
 import * as Location from 'expo-location';
+import * as SplashScreen from 'expo-splash-screen';
 
 import DateTime from './components/DateTime';
 import WeatherScroll from './components/WeatherScroll';
 import SearchBar from './components/SearchBar';
 
-const API_KEY = "YOUR_API_KEY";   // Replace with your OpenWeatherMap API key
+SplashScreen.preventAutoHideAsync(); // Keep the splash screen visible while we fetch resources
+
+const API_KEY = "5a744117d5f6a9eeae9674a0b790ab97";   // Replace with your OpenWeatherMap API key
 const img = require('./assets/weatherBG1.jpg');
 
 export default function App() {
@@ -18,50 +21,9 @@ export default function App() {
    lon: null,
    timezone: null
   });
+  const [appIsReady, setAppIsReady] = useState(false);
 
-  useEffect(() => {
-    getCurrentLocationWeather();
-  }, [])
-
- const getCurrentLocationWeather = async () => {
-    try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        // Default to New York if permission denied
-        fetchDataFromApi(40.7128, -74.0060);
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync({});
-      fetchDataFromApi(location.coords.latitude, location.coords.longitude);
-    } catch (error) {
-      console.error('Error getting current location:', error);
-      fetchDataFromApi(40.7128, -74.0060); // Fallback to New York
-    }
-  };
-
- const searchLocationWeather = async (locationName) => {
-    try {
-      // Use OpenWeather Geocoding API to get coordinates from city name
-      const geocodeResponse = await fetch(
-        `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(locationName)}&limit=1&appid=${API_KEY}`
-      );
-      const geocodeData = await geocodeResponse.json();
-
-      if (!geocodeData || geocodeData.length === 0) {
-        Alert.alert('Location Not Found', 'Please check the city name and try again.');
-        return;
-      }
-
-      const { lat, lon, } = geocodeData[0];
-      await fetchDataFromApi(lat, lon);
-    } catch (error) {
-      console.error('Error searching location:', error);
-      Alert.alert('Search Error', 'Failed to search for this location. Please try again.');
-    }
-  };
-
- const fetchDataFromApi = async (latitude, longitude) => {
+   const fetchDataFromApi = async (latitude, longitude) => {
     try {
       // Fetch current weather data
       const currentResponse = await fetch(
@@ -102,9 +64,76 @@ export default function App() {
       Alert.alert('Weather Error', 'Failed to fetch weather data. Please try again.');
     }
   };
+
+  const onLayoutRootView = useCallback(async () => {
+    if (appIsReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]); 
+  if (!appIsReady) {
+    return null;
+  }
+
+ const getCurrentLocationWeather = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Denied',
+          'Please grant location permissions to use this app',
+          [{ text: 'OK' }]
+        );
+        return;
+        // Default to New York if permission denied
+        //fetchDataFromApi(40.7128, -74.0060);
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      fetchDataFromApi(location.coords.latitude, location.coords.longitude);
+    } catch (error) {
+      console.error('Error getting current location:', error);
+      fetchDataFromApi(40.7128, -74.0060); // Fallback to New York
+    }
+  };
+
+    useEffect(() => {
+        async function prepare() {
+      try {
+        await getCurrentLocationWeather();
+        // Add a small delay for smooth transition
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setAppIsReady(true);
+      } catch (e) {
+        console.warn(e);
+        setAppIsReady(true);
+      }
+    }
+    prepare();
+  }, [])
+
+ const searchLocationWeather = async (locationName) => {
+    try {
+      // Use OpenWeather Geocoding API to get coordinates from city name
+      const geocodeResponse = await fetch(
+        `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(locationName)}&limit=1&appid=${API_KEY}`
+      );
+      const geocodeData = await geocodeResponse.json();
+
+      if (!geocodeData || geocodeData.length === 0) {
+        Alert.alert('Location Not Found', 'Please check the city name and try again.');
+        return;
+      }
+
+      const { lat, lon, } = geocodeData[0];
+      await fetchDataFromApi(lat, lon);
+    } catch (error) {
+      console.error('Error searching location:', error);
+      Alert.alert('Search Error', 'Failed to search for this location. Please try again.');
+    }
+  };
   
   return (
-    <View style={styles.container}>
+    <View style={styles.container} onLayout={onLayoutRootView}>
       <ImageBackground source={img} style={styles.Image}>
         <SearchBar onLocationSearch={searchLocationWeather}/>
         <DateTime 
