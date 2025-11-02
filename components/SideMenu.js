@@ -15,7 +15,7 @@ import {
 const { width } = Dimensions.get('window');
 const MENU_WIDTH = width * 0.75; // 75% of screen width
 
-const SideMenu = ({ visible, onClose, onMenuItemPress }) => {
+const SideMenu = ({ visible, onClose, onMenuItemPress, notificationsEnabled, onNotificationToggle }) => {
   const slideAnim = React.useRef(new Animated.Value(-MENU_WIDTH)).current;
 
   React.useEffect(() => {
@@ -35,13 +35,13 @@ const SideMenu = ({ visible, onClose, onMenuItemPress }) => {
   }, [visible]);
 
   const menuItems = [
-    { id: 'current', icon: '📍', title: 'Current Location', subtitle: 'Get weather at your location' },
+    { id: 'current', icon: '📍', title: 'Current Location', subtitle: 'Get weather at your location',type: 'item'  },
     { id: 'notifications', icon: '🔔', title: 'Notifications', subtitle: 'Daily weather updates', type: 'toggle' },
-    { id: 'favorites', icon: '⭐', title: 'Favorite Locations', subtitle: 'Manage saved locations' },
-    { id: 'units', icon: '🌡️', title: 'Temperature Units', subtitle: 'Celsius / Fahrenheit' },
-    { id: 'refresh', icon: '🔄', title: 'Refresh Weather', subtitle: 'Update current data' },
-    { id: 'settings', icon: '⚙️', title: 'Settings', subtitle: 'App preferences' },
-    { id: 'about', icon: 'ℹ️', title: 'About', subtitle: 'App version & info' },
+    { id: 'favorites', icon: '⭐', title: 'Favorite Locations', subtitle: 'Manage saved locations', type: 'item'},
+    { id: 'units', icon: '🌡️', title: 'Temperature Units', subtitle: 'Celsius / Fahrenheit', type: 'item' },
+    { id: 'refresh', icon: '🔄', title: 'Refresh Weather', subtitle: 'Update current data', type: 'item' },
+    { id: 'settings', icon: '⚙️', title: 'Settings', subtitle: 'App preferences', type: 'item' },
+    { id: 'about', icon: 'ℹ️', title: 'About', subtitle: 'App version & info', type: 'item' },
   ];
 
   const handleItemPress = (itemId) => {
@@ -52,8 +52,11 @@ const SideMenu = ({ visible, onClose, onMenuItemPress }) => {
   };
 
   const handleNotificationToggle = async (value) => {
-    await onNotificationToggle(value);
+     if (onNotificationToggle) {
+      await onNotificationToggle(value);
+    }
   };
+
   return (
     <Modal
       visible={visible}
