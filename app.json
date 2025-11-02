@@ -12,6 +12,12 @@
       "resizeMode": "contain",
       "backgroundColor": "#87CEEB"
     },
+    "notification": {
+      "icon": "./assets/notification-icon.png",
+      "color": "#87CEEB",
+      "androidMode": "default",
+      "androidCollapsedTitle": "Weather Updates"
+    },
     "ios": {
       "supportsTablet": true
     },

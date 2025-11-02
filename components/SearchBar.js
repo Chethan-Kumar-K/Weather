@@ -46,7 +46,7 @@ const SearchBar = ({ onLocationSearch }) => {
     openweather: {
       baseUrl: 'http://api.openweathermap.org/geo/1.0/direct',
 
-      apiKey: 'YOUR_API_KEY', // Replace with your API key
+      apiKey: "Your_API_KEY", // Replace with your API key
 
       buildUrl: (query, apiKey) => `${API_CONFIGS.openweather.baseUrl}?q=${encodeURIComponent(query)}&limit=5&appid=${apiKey}`,
       parseResponse: (data) => data.map(item => ({
