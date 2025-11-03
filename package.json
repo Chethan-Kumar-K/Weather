@@ -22,10 +22,7 @@
     "react-native": "0.81.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@react-native-community/cli": "latest",
-    "@react-native-community/cli-platform-android": "latest",
-    "@react-native-community/cli-platform-ios": "latest"
+    "@babel/core": "^7.20.0"
   },
   "private": true
 }

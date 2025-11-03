@@ -1,37 +1,60 @@
 import { useEffect, useState } from 'react'
-import{ View, Text, StyleSheet } from 'react-native'
+import{ View, Text, StyleSheet, Animated } from 'react-native'
 
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const WeatherItem = ({title, value, unit}) => {
-    return(
-        <View style={styles.weatherItem}>
-            <Text style={styles.weatherItemValue}>{title}</Text>
-            <Text style={styles.weatherItemValue}>{value}{unit}</Text>
-        </View>
-    )
-}
+const WeatherMetric = ({ icon, title, value, unit }) => {
+  const fadeAnim = new Animated.Value(0);
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, [value]);
+
+    return (
+    <Animated.View style={[styles.metricCard, { opacity: fadeAnim }]}>
+      <Text style={styles.metricIcon}>{icon}</Text>
+      <View style={styles.metricContent}>
+        <Text style={styles.metricTitle}>{title}</Text>
+        <Text style={styles.metricValue}>
+          {value}
+          <Text style={styles.metricUnit}>{unit}</Text>
+        </Text>
+      </View>
+    </Animated.View>
+  );
+};
+//const WeatherItem = ({title, value, unit}) => {
+//    return(
+//        <View style={styles.weatherItem}>
+//            <Text style={styles.weatherItemValue}>{title}</Text>
+//            <Text style={styles.weatherItemValue}>{value}{unit}</Text>
+//        </View>
+//    )
+//}
 
 const DateTime = ({current, lat, lon, timezone, locationName}) => {
     const [date, setDate] = useState('')
     const [time, setTime] = useState('')
+    const scaleAnim = new Animated.Value(1);
 
     // Helper function to format sunrise/sunset times
     const formatTime = (timestamp, timezoneOffset) => {
-    if (!timestamp || !timezoneOffset) return '';
-        try {
+        if (!timestamp || !timezoneOffset) return '';
+            try {
             // Convert Unix timestamp to local time using timezone offset
             // timezoneOffset is in seconds from UTC
-            const utcTime = new Date(timestamp * 1000);
-            const localTime = new Date(utcTime.getTime() + (timezoneOffset * 1000));
-            
-            const hours = localTime.getUTCHours();
-            const minutes = localTime.getUTCMinutes();
-            
-            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-        } catch (error) {
-            console.error('Error formatting time:', error);
+                const utcTime = new Date(timestamp * 1000);
+                const localTime = new Date(utcTime.getTime() + (timezoneOffset * 1000));
+                const hours = localTime.getUTCHours();
+                const minutes = localTime.getUTCMinutes();
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            } catch (error) {
+                console.error('Error formatting time:', error);
             return '';
         }
     };
@@ -67,7 +90,21 @@ const DateTime = ({current, lat, lon, timezone, locationName}) => {
             setTime((hoursIn12HrFormat < 10? '0'+hoursIn12HrFormat : hoursIn12HrFormat) + ':' + (minutes < 10? '0'+minutes: minutes) +ampm) 
             setDate(days[day] + ', ' + date+ ' ' + months[month]) 
 
-        };
+            if (minutes === 0) {
+            Animated.sequence([
+            Animated.timing(scaleAnim, {
+            toValue: 1.05,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnim, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }
+    };
 
         // update time immediately and then every second
         updateDateTime();
@@ -80,116 +117,167 @@ const DateTime = ({current, lat, lon, timezone, locationName}) => {
     }, []);
 
     return(
-        <View style={styles.container}>
-            <View>
-                <View>
-                    <Text style={styles.locationDisplay}>
-                        {locationName || 'Current Location'}
-                    </Text>
-                </View>
-                <View>
-                    <Text style={styles.heading}>{time}</Text>
-                </View>
-                <View>
-                    <Text style={styles.subheading}>{date}</Text>
-                </View>
-                <View style={styles.weatherItemContainer}>
-                    <WeatherItem 
-                    title ="Humidity" 
-                    value={current?.humidity || '--' } 
-                    unit="%"
-                    />
-                    <WeatherItem 
-                    title ="Pressure" 
-                    value={current?.pressure || '--' } 
-                    unit="hPa"
-                    />
-                    <WeatherItem 
-                    title ="Sunrise" 
-                    value={formatTime(current?.sunrise, timezone) || '--' } 
-                    unit={` ${getAmPm(current?.sunrise, timezone)}`}
-                    />
-                    <WeatherItem 
-                    title ="Sunset" 
-                    value={formatTime(current?.sunset, timezone) || '--' } 
-                    unit={` ${getAmPm(current?.sunset, timezone)}`}
-                    />
-                </View>
-            </View>
-            <View style={styles.rightAlign}>
-                <Text style={styles.timezone}>
-                    {timezone ? `UTC${timezone >= 0 ? '+' : ''}${(timezone / 3600).toFixed(1)}` : 'Loading...'}
-                </Text>
-                <Text style={styles.latlong}>
-                    {lat && lon ? `${lat.toFixed(2)}°, ${lon.toFixed(2)}°` : 'Loading...'}
-                </Text>
-            </View>
+    <View style={styles.container}>
+      <View style={styles.mainCard}>
+        <View style={styles.locationContainer}>
+          <Text style={styles.locationIcon}>📍</Text>
+          <Text style={styles.locationText}>{locationName || 'Current Location'}</Text>
         </View>
-    )
+
+        <Animated.View style={[styles.timeContainer, { transform: [{ scale: scaleAnim }] }]}>
+          <Text style={styles.timeText}>{time}</Text>
+          <Text style={styles.dateText}>{date}</Text>
+        </Animated.View>
+
+        <View style={styles.metricsGrid}>
+          <WeatherMetric icon="💧" title="Humidity" value={current?.humidity || '--'} unit="%" />
+          <WeatherMetric icon="🌡️" title="Pressure" value={current?.pressure || '--'} unit=" hPa" />
+          <WeatherMetric icon="🌅" title="Sunrise" value={formatTime(current?.sunrise, timezone) || '--'} unit={` ${getAmPm(current?.sunrise, timezone)}`} />
+          <WeatherMetric icon="🌇" title="Sunset" value={formatTime(current?.sunset, timezone) || '--'} unit={` ${getAmPm(current?.sunset, timezone)}`} />
+        </View>
+      </View>
+
+      <View style={styles.coordsCard}>
+        <View style={styles.coordItem}>
+          <Text style={styles.coordLabel}>Timezone</Text>
+          <Text style={styles.coordValue}>
+            {timezone ? `UTC${timezone >= 0 ? '+' : ''}${(timezone / 3600).toFixed(1)}` : '--'}
+          </Text>
+        </View>
+        <View style={styles.coordDivider} />
+        <View style={styles.coordItem}>
+          <Text style={styles.coordLabel}>Coordinates</Text>
+          <Text style={styles.coordValue}>
+            {lat && lon ? `${lat.toFixed(2)}°, ${lon.toFixed(2)}°` : '--'}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
 }
+
 const styles = StyleSheet.create({
-    locationDisplay: {
-        fontSize: 28,
-        color: "black",
-        fontWeight: "600",
-        marginBottom: 8,
-        fontFamily: "AvenirNext-Regular",
+  container: { 
+    paddingHorizontal: 20,
+    paddingTop: 20, 
+    paddingBottom: 10 
     },
-    container:{
-        flex: 1.5,
-        flexDirection:"row",
-        justifyContent:"space-between",
-        marginTop: 40,
-        padding: 20,
+  mainCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 8,
     },
-    heading:{
-        fontSize: 40,
-        color: "black",
-        fontWeight: "bold",
-        fontFamily: "AvenirNext-Regular",
+  locationContainer: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: 20 
     },
-    subheading:{
-        fontSize: 22,
-        color: "black",
-        fontWeight: "bold",
-        fontStyle: "italic",
-        fontFamily: "AvenirNext-Regular",
+  locationIcon: { 
+    fontSize: 20, 
+    marginRight: 8 
     },
-    rightAlign:{
-        textAlign:"left",
-        marginTop: 20,
+  locationText: { 
+    fontSize: 22, 
+    fontWeight: '700', 
+    color: '#1a1a1a', 
+    letterSpacing: 0.5 
     },
-    timezone:{
-        fontSize: 16,
-        color:"black",
-        fontWeight:"800",
-        fontStyle:"italic"
+  timeContainer: { 
+    marginBottom: 24 
     },
-    latlong:{
-        fontSize: 16,
-        color:"black",
-        fontWeight:"800",
-        fontStyle:"italic"
+  timeText: { 
+    fontSize: 56, 
+    fontWeight: '800', 
+    color: '#1a1a1a', 
+    letterSpacing: -2, 
+    marginBottom: 4 
     },
-    weatherItemContainer:{
-        backgroundColor:"rgba(197, 212, 217, 0.37)",
-        borderRadius: 10,
-        padding: 16,
-        marginTop: 16,
-        marginLeft: 4,
-        width: "100%",
-        flexDirection:"column",
-        justifyContent: "space-between",
+  dateText: { 
+    fontSize: 18, 
+    fontWeight: '600', 
+    color: '#4a4a4a', 
+    letterSpacing: 0.3 
     },
-    weatherItem:{
-        flexDirection: "row",
-        justifyContent: "space-between",
+  metricsGrid: { 
+    flexDirection: 'row', 
+    flexWrap: 'wrap', 
+    gap: 12, 
+    marginTop: 8 
     },
-    weatherItemValue:{
-        color:"#1e3940db",
-        fontSize: 14,
-        fontWeight: "bold",
-    }
-})
+  metricCard: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    borderRadius: 16,
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    },
+  metricIcon: { 
+    fontSize: 28, 
+    marginRight: 12 
+    },
+  metricContent: {
+    flex: 1 
+    },
+  metricTitle: { 
+    fontSize: 12, 
+    fontWeight: '600', 
+    color: '#5a5a5a', 
+    textTransform: 'uppercase', 
+    letterSpacing: 0.5, 
+    marginBottom: 2 
+    },
+  metricValue: { 
+    fontSize: 16, 
+    fontWeight: '700', 
+    color: '#1a1a1a' 
+    },
+  metricUnit: { 
+    fontSize: 12, 
+    fontWeight: '500', 
+    color: '#6a6a6a' 
+    },
+  coordsCard: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+    padding: 16,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  coordItem: { 
+    flex: 1, 
+    alignItems: 'center' 
+    },
+  coordLabel: { 
+    fontSize: 11, 
+    fontWeight: '600', 
+    color: '#5a5a5a', 
+    textTransform: 'uppercase', 
+    letterSpacing: 0.5, 
+    marginBottom: 4 
+    },
+  coordValue: { 
+    fontSize: 14, 
+    fontWeight: '700', 
+    color: '#1a1a1a' 
+    },
+  coordDivider: { 
+    width: 1, 
+    backgroundColor: 'rgba(255, 255, 255, 0.3)', 
+    marginHorizontal: 16 
+    },
+});
 
 export default DateTime
