@@ -13,7 +13,7 @@
       "backgroundColor": "#87CEEB"
     },
     "notification": {
-      "icon": "./assets/notification-icon.png",
+      "icon": "./assets/splash-icon.png",
       "color": "#87CEEB",
       "androidMode": "default",
       "androidCollapsedTitle": "Weather Updates"
@@ -47,7 +47,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
+          "icon": "./assets/splash-icon.png",
           "color": "#87CEEB",
           "sounds": []
         }

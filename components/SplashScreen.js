@@ -1,15 +1,17 @@
 import React from 'react';
-import { View, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
+import LottieView from 'lottie-react-native';
 
 const { width, height } = Dimensions.get('window');
 
-const SplashScreen = () => {
+const AppSplash = () => {
   return (
     <View style={styles.container}>
-      <Image
-        source={require('../assets/splash-icon.png')}
-        style={styles.image}
-        resizeMode="contain"
+      <LottieView
+        source={{ uri: 'https://assets9.lottiefiles.com/packages/lf20_j1dawwgj.json' }} // Add your Lottie file
+        autoPlay
+        loop
+        style={styles.animation}
       />
     </View>
   );
@@ -24,12 +26,10 @@ const styles = StyleSheet.create({
     width: width,
     height: height,
   },
-  image: {
-    width: width * 0.7, // 70% of screen width
-    height: height * 0.7, // 70% of screen height
-    maxWidth: 300,
-    maxHeight: 300,
+  animation: {
+    width: width * 0.8,
+    height: height * 0.8,
   },
 });
 
-export default SplashScreen;
+export default AppSplash;

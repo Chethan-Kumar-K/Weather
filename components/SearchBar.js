@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  View,
+View,
   TextInput,
   TouchableOpacity,
   Text,
@@ -9,7 +9,9 @@ import {
   FlatList,
   Keyboard,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 // Debounce hook to prevent excessive API calls
 const useDebounce = (value, delay) => {
@@ -34,6 +36,7 @@ const SearchBar = ({ onLocationSearch }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
+  const [dropdownAnim] = useState(new Animated.Value(0));
   const inputRef = useRef(null);
   const abortControllerRef = useRef(null);
 
@@ -46,7 +49,7 @@ const SearchBar = ({ onLocationSearch }) => {
     openweather: {
       baseUrl: 'http://api.openweathermap.org/geo/1.0/direct',
 
-      apiKey: "YOUR_API_KEY", // Replace with your API key
+      apiKey: "5a744117d5f6a9eeae9674a0b790ab97", // Replace with your API key
 
       buildUrl: (query, apiKey) => `${API_CONFIGS.openweather.baseUrl}?q=${encodeURIComponent(query)}&limit=5&appid=${apiKey}`,
       parseResponse: (data) => data.map(item => ({
@@ -94,6 +97,34 @@ const SearchBar = ({ onLocationSearch }) => {
 
   // Choose your preferred API (change this to switch providers)
   const currentAPI = API_CONFIGS.openweather; // Using free Nominatim API
+
+const handleTextChange = (text) => {
+    setSearchText(text);
+  };
+
+  const handleClear = () => {
+    setSearchText('');
+    setSuggestions([]);
+    setShowSuggestions(false);
+    inputRef.current.focus();
+  };
+
+  const handleSearch = () => {
+    if (searchText.trim()) {
+      setIsLoading(true);
+      onLocationSearch(searchText.trim());
+      setIsLoading(false);
+      setShowSuggestions(false);
+      Keyboard.dismiss();
+    }
+  };
+
+  const handleSuggestionPress = (item) => {
+    setSearchText(item.name);
+    setShowSuggestions(false);
+    onLocationSearch(item.name);
+    Keyboard.dismiss();
+  };
 
   // Fetch city suggestions from API
   const fetchCitySuggestions = useCallback(async (query) => {
@@ -158,59 +189,20 @@ const SearchBar = ({ onLocationSearch }) => {
 
   // Hide suggestions when keyboard is dismissed
   useEffect(() => {
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setTimeout(() => setShowSuggestions(false), 100);
+    const keyboardHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setShowSuggestions(false);
     });
 
-    return () => {
-      keyboardDidHideListener?.remove();
-      // Cancel any pending requests when component unmounts
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
+    return () => keyboardHideListener.remove();
   }, []);
 
-  const handleSearch = async (location = searchText) => {
-    const searchLocation = location.trim();
-    if (!searchLocation) {
-      Alert.alert('Error', 'Please enter a location');
-      return;
-    }
-
-    setIsLoading(true);
-    setShowSuggestions(false);
-    
-    try {
-      await onLocationSearch(searchLocation);
-      inputRef.current?.blur();
-    } catch (error) {
-      Alert.alert('Error', 'Failed to fetch weather data for this location');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSuggestionPress = (suggestion) => {
-    setSearchText(suggestion.name);
-    setShowSuggestions(false);
-    handleSearch(suggestion.name);
-  };
-
-  const handleClear = () => {
-    setSearchText('');
-    setSuggestions([]);
-    setShowSuggestions(false);
-    inputRef.current?.focus();
-  };
-
-  const handleTextChange = (text) => {
-    setSearchText(text);
-    if (text.length === 0) {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
-  };
+  useEffect(() => {
+    Animated.timing(dropdownAnim, {
+      toValue: showSuggestions ? 1 : 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }, [showSuggestions]);
 
   const renderSuggestion = ({ item }) => (
     <TouchableOpacity
@@ -238,9 +230,10 @@ const SearchBar = ({ onLocationSearch }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchWrapper}>
+   <View style={styles.container}>
+     <View style={styles.searchWrapper}>
         <View style={styles.searchContainer}>
+          <Icon name="search" size={20} color="#666" style={{ marginRight: 8 }} />
           <TextInput
             ref={inputRef}
             style={styles.textInput}
@@ -279,8 +272,8 @@ const SearchBar = ({ onLocationSearch }) => {
       </View>
 
       {/* API-based Suggestions Dropdown */}
-      {showSuggestions && (suggestions.length > 0 || isFetchingSuggestions) && (
-        <View style={styles.suggestionsContainer}>
+      { (suggestions.length > 0 || isFetchingSuggestions) && (
+        <Animated.View style={[styles.suggestionsContainer, { opacity: dropdownAnim, transform: [{ scale: dropdownAnim }] }]}>
           <FlatList
             data={suggestions}
             renderItem={renderSuggestion}
@@ -292,12 +285,12 @@ const SearchBar = ({ onLocationSearch }) => {
             ListEmptyComponent={
               isFetchingSuggestions ? null : (
                 <View style={styles.emptyContainer}>
-                  <Text style={styles.emptyText}>No cities found</Text>
+                  <Text style={styles.emptyText}>No cities found. Try 'London' or 'New York'.</Text>
                 </View>
               )
             }
           />
-        </View>
+        </Animated.View>
       )}
     </View>
   );

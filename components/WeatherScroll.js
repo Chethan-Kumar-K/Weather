@@ -1,8 +1,10 @@
 import React from 'react'
-import{ View, ScrollView, Image, Text, StyleSheet } from 'react-native'
+import { View, ScrollView, Image, Text, StyleSheet, Dimensions, RefreshControl  } from 'react-native'
 import FutureForecast from './FutureForecast'
 
-const WeatherScroll = ({weatherData, locationName}) => {
+const { width } = Dimensions.get('window');
+
+const WeatherScroll = ({weatherData, locationName, refreshing, onRefresh}) => {
     console.log('WeatherScroll - received weatherData:', weatherData);
     console.log('WeatherScroll - weatherData type:', typeof weatherData);
     console.log('WeatherScroll - weatherData length:', weatherData ? weatherData.length : 'N/A');
@@ -15,12 +17,18 @@ const WeatherScroll = ({weatherData, locationName}) => {
         'Current Location';
 
   return (
-    <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
-        <CurrentTempEl data={weatherData && weatherData.length > 0 ? weatherData[0] : {}}/>
-        <FutureForecast weatherData={weatherData || []}/>
+    <ScrollView 
+      style={styles.scrollView} 
+      contentContainerStyle={styles.contentContainer}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      <CurrentTempEl data={weatherData && weatherData.length > 0 ? weatherData[0] : {}}/>
+      <FutureForecast weatherData={weatherData || []}/>
     </ScrollView>
-  )
-}
+  );
+};
 
 const CurrentTempEl = ({data}) =>{
 
@@ -44,7 +52,7 @@ const CurrentTempEl = ({data}) =>{
                 <Text style={styles.description}>Description: {data.weather[0].description}</Text>
             </View>
         </View>
-    )
+    );
     } else {
         return(
             <View style={styles.loadingContainer}>
@@ -91,6 +99,11 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginBottom: 20,
         padding: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
     },
     otherContainer:{
         padding: "auto",

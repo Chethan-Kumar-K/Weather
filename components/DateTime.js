@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
-import{ View, Text, StyleSheet, Animated } from 'react-native'
+import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+const { width } = Dimensions.get('window');
 
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const WeatherMetric = ({ icon, title, value, unit }) => {
+const WeatherMetric = ({ iconName, title, value, unit }) => {
   const fadeAnim = new Animated.Value(0);
 
   useEffect(() => {
@@ -15,17 +18,17 @@ const WeatherMetric = ({ icon, title, value, unit }) => {
     }).start();
   }, [value]);
 
-    return (
-    <Animated.View style={[styles.metricCard, { opacity: fadeAnim }]}>
-      <Text style={styles.metricIcon}>{icon}</Text>
-      <View style={styles.metricContent}>
-        <Text style={styles.metricTitle}>{title}</Text>
-        <Text style={styles.metricValue}>
-          {value}
-          <Text style={styles.metricUnit}>{unit}</Text>
-        </Text>
-      </View>
-    </Animated.View>
+  return (
+      <Animated.View style={[styles.metricCard, { opacity: fadeAnim }]}>
+        <Icon name={iconName} size={28} color="#007AFF" style={styles.metricIcon} />
+        <View style={styles.metricContent}>
+          <Text style={styles.metricTitle}>{title}</Text>
+          <Text style={styles.metricValue}>
+            {value}
+            <Text style={styles.metricUnit}>{unit}</Text>
+          </Text>
+        </View>
+      </Animated.View>
   );
 };
 //const WeatherItem = ({title, value, unit}) => {
@@ -120,7 +123,7 @@ const DateTime = ({current, lat, lon, timezone, locationName}) => {
     <View style={styles.container}>
       <View style={styles.mainCard}>
         <View style={styles.locationContainer}>
-          <Text style={styles.locationIcon}>📍</Text>
+          <Icon name="map-marker" size={20} color="#1a1a1a" style={styles.locationIcon} />
           <Text style={styles.locationText}>{locationName || 'Current Location'}</Text>
         </View>
 
@@ -129,11 +132,11 @@ const DateTime = ({current, lat, lon, timezone, locationName}) => {
           <Text style={styles.dateText}>{date}</Text>
         </Animated.View>
 
-        <View style={styles.metricsGrid}>
-          <WeatherMetric icon="💧" title="Humidity" value={current?.humidity || '--'} unit="%" />
-          <WeatherMetric icon="🌡️" title="Pressure" value={current?.pressure || '--'} unit=" hPa" />
-          <WeatherMetric icon="🌅" title="Sunrise" value={formatTime(current?.sunrise, timezone) || '--'} unit={` ${getAmPm(current?.sunrise, timezone)}`} />
-          <WeatherMetric icon="🌇" title="Sunset" value={formatTime(current?.sunset, timezone) || '--'} unit={` ${getAmPm(current?.sunset, timezone)}`} />
+        <View style={[styles.metricsGrid, { flexDirection: width > 400 ? 'row' : 'column', flexWrap: 'wrap' }]}>
+          <WeatherMetric iconName="water-percent" title="Humidity" value={current?.humidity || '--'} unit="%" />
+          <WeatherMetric iconName="gauge" title="Pressure" value={current?.pressure || '--'} unit=" hPa" />
+          <WeatherMetric iconName="weather-sunny" title="Sunrise" value={formatTime(current?.sunrise, timezone) || '--'} unit={` ${getAmPm(current?.sunrise, timezone)}`} />
+          <WeatherMetric iconName="weather-sunset" title="Sunset" value={formatTime(current?.sunset, timezone) || '--'} unit={` ${getAmPm(current?.sunset, timezone)}`} />
         </View>
       </View>
 
@@ -157,11 +160,11 @@ const DateTime = ({current, lat, lon, timezone, locationName}) => {
 }
 
 const styles = StyleSheet.create({
-  container: { 
+container: { 
     paddingHorizontal: 20,
     paddingTop: 20, 
     paddingBottom: 10 
-    },
+  },
   mainCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
     borderRadius: 28,
@@ -173,44 +176,42 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 20,
     elevation: 8,
-    },
+  },
   locationContainer: { 
     flexDirection: 'row', 
     alignItems: 'center', 
     marginBottom: 20 
-    },
+  },
   locationIcon: { 
-    fontSize: 20, 
     marginRight: 8 
-    },
+  },
   locationText: { 
     fontSize: 22, 
     fontWeight: '700', 
     color: '#1a1a1a', 
     letterSpacing: 0.5 
-    },
+  },
   timeContainer: { 
     marginBottom: 24 
-    },
+  },
   timeText: { 
     fontSize: 56, 
     fontWeight: '800', 
     color: '#1a1a1a', 
     letterSpacing: -2, 
     marginBottom: 4 
-    },
+  },
   dateText: { 
     fontSize: 18, 
     fontWeight: '600', 
     color: '#4a4a4a', 
     letterSpacing: 0.3 
-    },
+  },
   metricsGrid: { 
-    flexDirection: 'row', 
-    flexWrap: 'wrap', 
     gap: 12, 
-    marginTop: 8 
-    },
+    marginTop: 8,
+    justifyContent: 'space-between'
+  },
   metricCard: {
     flex: 1,
     minWidth: '45%',
@@ -221,14 +222,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.5)',
-    },
+  },
   metricIcon: { 
-    fontSize: 28, 
     marginRight: 12 
-    },
+  },
   metricContent: {
     flex: 1 
-    },
+  },
   metricTitle: { 
     fontSize: 12, 
     fontWeight: '600', 
@@ -236,17 +236,17 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase', 
     letterSpacing: 0.5, 
     marginBottom: 2 
-    },
+  },
   metricValue: { 
     fontSize: 16, 
     fontWeight: '700', 
     color: '#1a1a1a' 
-    },
+  },
   metricUnit: { 
     fontSize: 12, 
     fontWeight: '500', 
     color: '#6a6a6a' 
-    },
+  },
   coordsCard: {
     flexDirection: 'row',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
   coordItem: { 
     flex: 1, 
     alignItems: 'center' 
-    },
+  },
   coordLabel: { 
     fontSize: 11, 
     fontWeight: '600', 
@@ -267,17 +267,17 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase', 
     letterSpacing: 0.5, 
     marginBottom: 4 
-    },
+  },
   coordValue: { 
     fontSize: 14, 
     fontWeight: '700', 
     color: '#1a1a1a' 
-    },
+  },
   coordDivider: { 
     width: 1, 
     backgroundColor: 'rgba(255, 255, 255, 0.3)', 
     marginHorizontal: 16 
-    },
+  },
 });
 
 export default DateTime

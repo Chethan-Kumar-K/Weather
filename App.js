@@ -1,9 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import {useEffect, useState, useCallback, useRef} from 'react';
-import { StyleSheet, Text, View, ImageBackground, Alert, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, Alert, TouchableOpacity, RefreshControl} from 'react-native';
 import * as Location from 'expo-location';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
+import { LinearGradient } from 'expo-linear-gradient';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import AppSplash from './components/SplashScreen'; // in-app splash
 import DateTime from './components/DateTime';
@@ -11,25 +13,39 @@ import WeatherScroll from './components/WeatherScroll';
 import SearchBar from './components/SearchBar';
 import SideMenu from './components/SideMenu';
 import notificationService from './services/notificationService';
+import { useTheme } from './theme';
 
 SplashScreen.preventAutoHideAsync(); // Keep the splash screen visible while we fetch resources
 
-const API_KEY = "YOUR_API_KEY";   // Replace with your OpenWeatherMap API key
+const API_KEY = "5a744117d5f6a9eeae9674a0b790ab97";   // Replace with your OpenWeatherMap API key
 
-const weatherBackgrounds = {
-  Clear: require('./assets/backgrounds/clear.jpg'),
-  Clouds: require('./assets/backgrounds/cloudy.jpg'),
-  Rain: require('./assets/backgrounds/rainy.jpg'),
-  Drizzle: require('./assets/backgrounds/drizzle.jpg'),
-  Thunderstorm: require('./assets/backgrounds/thunderstorm.jpg'),
-  Snow: require('./assets/backgrounds/snowy.jpg'),
-  Mist: require('./assets/backgrounds/misty.jpg'),
-  Fog: require('./assets/backgrounds/misty.jpg'),
-  Haze: require('./assets/backgrounds/misty.jpg'),
-  default: require('./assets/weatherBG1.jpg'),
+const weatherGradients = {
+  Clear: ['#87CEEB', '#ADD8E6'],
+  Clouds: ['#A9A9A9', '#D3D3D3'],
+  Rain: ['#4682B4', '#708090'],
+  Drizzle: ['#778899', '#B0C4DE'],
+  Thunderstorm: ['#4B0082', '#9370DB'],
+  Snow: ['#F0F8FF', '#E6E6FA'],
+  Mist: ['#E0E0E0', '#F5F5F5'],
+  Fog: ['#E0E0E0', '#F5F5F5'],
+  Haze: ['#E0E0E0', '#F5F5F5'],
+  default: ['#87CEEB', '#FFFFFF'],
 };
+//const weatherBackgrounds = {
+//  Clear: require('./assets/backgrounds/clear.jpg'),
+//  Clouds: require('./assets/backgrounds/cloudy.jpg'),
+//  Rain: require('./assets/backgrounds/rainy.jpg'),
+//  Drizzle: require('./assets/backgrounds/drizzle.jpg'),
+//  Thunderstorm: require('./assets/backgrounds/thunderstorm.jpg'),
+//  Snow: require('./assets/backgrounds/snowy.jpg'),
+//  Mist: require('./assets/backgrounds/misty.jpg'),
+//  Fog: require('./assets/backgrounds/misty.jpg'),
+//  Haze: require('./assets/backgrounds/misty.jpg'),
+//  default: require('./assets/weatherBG1.jpg'),
+//};
 
 export default function App() {
+  const theme = useTheme();
   const [data, setData ]= useState({
    current: null,
    daily: [],
@@ -39,9 +55,10 @@ export default function App() {
    cityName: null
   });
   const [appIsReady, setAppIsReady] = useState(false);
-  const [backgroundImage, setBackgroundImage] = useState(weatherBackgrounds.default);
+  const [gradientColors, setGradientColors] = useState(weatherGradients.default);
   const [menuVisible, setMenuVisible] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const notificationListener = useRef();
   const responseListener = useRef();
@@ -72,7 +89,7 @@ export default function App() {
     });
 
     return () => {
-  if (notificationListener.current) {
+      if (notificationListener.current) {
         notificationListener.current.remove();
       }
       if (responseListener.current) {
@@ -117,11 +134,10 @@ export default function App() {
       console.log('Combined weather data:', combinedData);
       setData(combinedData);
 
-      // Update background based on weather condition
+// Update gradient based on weather condition
       if (currentData.weather && currentData.weather.length > 0) {
         const weatherCondition = currentData.weather[0].main;
-        const newBackground = weatherBackgrounds[weatherCondition] || weatherBackgrounds.default;
-        setBackgroundImage(newBackground);
+        setGradientColors(weatherGradients[weatherCondition] || weatherGradients.default);
         console.log('Weather condition:', weatherCondition);
       }
 
@@ -172,18 +188,18 @@ export default function App() {
     prepare();
   }, [])
 
-  const onLayoutRootView = useCallback(async () => {
-    if (appIsReady) {
-      // Hide splash screen once layout is ready
-      await SplashScreen.hideAsync().catch(console.warn);
-    }
-  }, [appIsReady]);
-
-  if (!appIsReady) {
-  //  return null;
-  // show the in-app splash component while native splash is still visible
-    return <AppSplash />;
-  }
+ // const onLayoutRootView = useCallback(async () => {
+ //   if (appIsReady) {
+ //     // Hide splash screen once layout is ready
+ //     await SplashScreen.hideAsync().catch(console.warn);
+ //   }
+ // }, [appIsReady]);
+//
+ // if (!appIsReady) {
+ // //  return null;
+ // // show the in-app splash component while native splash is still visible
+ //   return <AppSplash />;
+ // }
 
  const searchLocationWeather = async (locationName) => {
     try {
@@ -278,20 +294,44 @@ export default function App() {
     }
   };
   
+const onRefresh = useCallback(async () => {
+  setRefreshing(true);
+  try {
+    if (data.lat && data.lon) {
+      await fetchDataFromApi(data.lat, data.lon);
+    } else {
+      await getCurrentLocationWeather();
+    }
+  } catch (error) {
+    console.error('Error refreshing weather data:', error);
+  } finally {
+    setRefreshing(false);
+  }
+}, [data.lat, data.lon]);
+
+  // AUTO HIDE SPLASH + FIX RED SCREEN
+  useEffect(() => {
+    if (appIsReady) {
+      SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
+
+  if (!appIsReady) {
+    return <AppSplash />;
+  }
+
+  // Dummy layout — not needed anymore
+  const onLayoutRootView = () => {};
+
   return (
-    <View style={styles.container} onLayout={onLayoutRootView}>
-      <ImageBackground source={backgroundImage} style={styles.Image}>
-        {/* Menu Button */}
-        <TouchableOpacity 
-          style={styles.menuButton} 
-          onPress={() => setMenuVisible(true)}
-          activeOpacity={0.8}
-        >
-          <View style={styles.menuIcon}>
-            <View style={styles.menuLine} />
-            <View style={styles.menuLine} />
-            <View style={styles.menuLine} />
-          </View>
+<View style={styles.container} onLayout={onLayoutRootView}>
+      <LinearGradient colors={gradientColors} style={StyleSheet.absoluteFill}>
+        <AppSplash /> {/* ← This was missing! */}
+      </LinearGradient>
+
+      <LinearGradient colors={gradientColors} style={styles.Image}>
+        <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
+          <Icon name="menu" size={28} color="#3b3f40" />
         </TouchableOpacity>
 
         <SearchBar onLocationSearch={searchLocationWeather}/>
@@ -301,9 +341,9 @@ export default function App() {
         lat={data.lat} 
         lon={data.lon}
         locationName={data.cityName}/>
-        <WeatherScroll weatherData={data.daily}/>
-      </ImageBackground>
-            {/* Side Menu */}
+        <WeatherScroll weatherData={data.daily} refreshing={refreshing} onRefresh={onRefresh}/>
+      </LinearGradient>
+      {/* Side Menu */}
       <SideMenu 
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
@@ -321,7 +361,6 @@ const styles = StyleSheet.create({
   },
   Image:{
     flex: 1,
-    resizeMode: "cover",
     justifyContent:"flex-start",
     paddingTop: 40,
   },
