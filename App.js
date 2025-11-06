@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import {useEffect, useState, useCallback, useRef} from 'react';
-import { StyleSheet, Text, View, ImageBackground, Alert, TouchableOpacity, RefreshControl} from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, Alert, TouchableOpacity, ScrollView,RefreshControl} from 'react-native';
 import * as Location from 'expo-location';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
@@ -13,7 +13,7 @@ import WeatherScroll from './components/WeatherScroll';
 import SearchBar from './components/SearchBar';
 import SideMenu from './components/SideMenu';
 import notificationService from './services/notificationService';
-import { useTheme } from './theme';
+//import { useTheme } from './theme';
 
 SplashScreen.preventAutoHideAsync(); // Keep the splash screen visible while we fetch resources
 
@@ -45,7 +45,7 @@ const weatherGradients = {
 //};
 
 export default function App() {
-  const theme = useTheme();
+  //const theme = useTheme();
   const [data, setData ]= useState({
    current: null,
    daily: [],
@@ -320,29 +320,44 @@ const onRefresh = useCallback(async () => {
     return <AppSplash />;
   }
 
-  // Dummy layout — not needed anymore
-  const onLayoutRootView = () => {};
-
   return (
-<View style={styles.container} onLayout={onLayoutRootView}>
-      <LinearGradient colors={gradientColors} style={StyleSheet.absoluteFill}>
-        <AppSplash /> {/* ← This was missing! */}
-      </LinearGradient>
-
-      <LinearGradient colors={gradientColors} style={styles.Image}>
-        <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
+    <View style={styles.container}>
+      <LinearGradient colors={gradientColors} style={styles.gradient}>
+        <StatusBar style="dark" />
+        
+        {/* Menu Button */}
+        <TouchableOpacity 
+          style={styles.menuButton} 
+          onPress={() => setMenuVisible(true)}
+          activeOpacity={0.8}
+        >
           <Icon name="menu" size={28} color="#3b3f40" />
         </TouchableOpacity>
 
-        <SearchBar onLocationSearch={searchLocationWeather}/>
-        <DateTime 
-        current={data.current} 
-        timezone={data.timezone} 
-        lat={data.lat} 
-        lon={data.lon}
-        locationName={data.cityName}/>
-        <WeatherScroll weatherData={data.daily} refreshing={refreshing} onRefresh={onRefresh}/>
+        {/* Main Content */}
+        <ScrollView 
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <SearchBar onLocationSearch={searchLocationWeather}/>
+          
+          <DateTime 
+            current={data.current} 
+            timezone={data.timezone} 
+            lat={data.lat} 
+            lon={data.lon}
+            locationName={data.cityName}
+          />
+          
+          <WeatherScroll 
+            weatherData={data.daily} 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+          />
+        </ScrollView>
       </LinearGradient>
+
       {/* Side Menu */}
       <SideMenu 
         visible={menuVisible}
@@ -359,17 +374,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  Image:{
+  gradient: {
     flex: 1,
-    justifyContent:"flex-start",
-    paddingTop: 40,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingTop: 60,
+    paddingBottom: 30,
   },
   menuButton: {
     position: 'absolute',
     top: 50,
     left: 20,
     zIndex: 1000,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     width: 50,
     height: 50,
     borderRadius: 25,
@@ -378,21 +398,10 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 4,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  menuIcon: {
-    width: 24,
-    height: 18,
-    justifyContent: 'space-between',
-  },
-  menuLine: {
-    width: '100%',
-    height: 3,
-    backgroundColor: '#3b3f40',
-    borderRadius: 2,
-  },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
+  }
 });
