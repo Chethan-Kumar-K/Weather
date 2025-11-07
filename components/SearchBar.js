@@ -98,7 +98,7 @@ const SearchBar = ({ onLocationSearch }) => {
   // Choose your preferred API (change this to switch providers)
   const currentAPI = API_CONFIGS.openweather; // Using free Nominatim API
 
-const handleTextChange = (text) => {
+  const handleTextChange = (text) => {
     setSearchText(text);
   };
 
@@ -211,8 +211,11 @@ const handleTextChange = (text) => {
       activeOpacity={0.7}
     >
       <View style={styles.suggestionContent}>
-        <Text style={styles.suggestionName}>📍 {item.name}</Text>
-        <Text style={styles.suggestionDetails}>{item.country}</Text>
+        <Icon name="location-on" size={20} color="#007AFF" style={styles.suggestionIcon} />
+        <View style={styles.suggestionTextContainer}>
+          <Text style={styles.suggestionName}>{item.name}</Text>
+          <Text style={styles.suggestionDetails}>{item.country}</Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -237,7 +240,7 @@ const handleTextChange = (text) => {
           <TextInput
             ref={inputRef}
             style={styles.textInput}
-            placeholder="Enter city name (e.g., London, New York)"
+            placeholder="Search city"
             placeholderTextColor="#666"
             value={searchText}
             onChangeText={handleTextChange}
@@ -255,25 +258,31 @@ const handleTextChange = (text) => {
          
           {searchText.length > 0 && (
             <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
-              <Text style={styles.clearText}>✕</Text>
+              <Icon name="close" size={20} color="#666" />
             </TouchableOpacity>
           )}
         </View>
        
         <TouchableOpacity
           style={[styles.searchButton, isLoading && styles.searchButtonDisabled]}
-          onPress={() => handleSearch()}
+          onPress={handleSearch}
           disabled={isLoading}
+          activeOpacity={0.8}
         >
-          <Text style={styles.searchButtonText}>
-            {isLoading ? 'Searching...' : 'Search'}
-          </Text>
+          <Icon name="arrow-forward" size={22} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {/* API-based Suggestions Dropdown */}
-      { (suggestions.length > 0 || isFetchingSuggestions) && (
-        <Animated.View style={[styles.suggestionsContainer, { opacity: dropdownAnim, transform: [{ scale: dropdownAnim }] }]}>
+      {showSuggestions && (suggestions.length > 0 || isFetchingSuggestions) && (
+        <Animated.View style={[styles.suggestionsContainer, { 
+          opacity: dropdownAnim, 
+          transform: [{ 
+            translateY: dropdownAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [-10, 0]
+            })
+          }] 
+        }]}>
           <FlatList
             data={suggestions}
             renderItem={renderSuggestion}
@@ -299,26 +308,34 @@ const handleTextChange = (text) => {
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    zIndex: 100,
   },
   searchWrapper: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
     alignItems: 'center',
+    gap: 10,
   },
   searchContainer: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 25,
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
+    height: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  searchIcon: {
     marginRight: 10,
   },
   textInput: {
     flex: 1,
-    height: 45,
     fontSize: 16,
     color: '#333',
     paddingVertical: 10,
@@ -327,57 +344,55 @@ const styles = StyleSheet.create({
     padding: 5,
     marginLeft: 5,
   },
-  clearText: {
-    fontSize: 18,
-    color: '#666',
-    fontWeight: 'bold',
-  },
   searchButton: {
-    backgroundColor: 'rgba(59, 63, 64, 0.8)',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    backgroundColor: '#007AFF',
+    width: 50,
+    height: 50,
     borderRadius: 25,
-    minWidth: 80,
+    justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   searchButtonDisabled: {
-    backgroundColor: 'rgba(59, 63, 64, 0.4)',
-  },
-  searchButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+    backgroundColor: '#999',
   },
   suggestionsContainer: {
     position: 'absolute',
-    top: '100%',
+    top: 75,
     left: 20,
     right: 20,
-    zIndex: 1000,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 15,
-    marginTop: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    borderRadius: 20,
     maxHeight: 250,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+    overflow: 'hidden',
   },
   suggestionsList: {
-    borderRadius: 15,
+    borderRadius: 20,
   },
   suggestionItem: {
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
   suggestionContent: {
-    flexDirection: 'column',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  suggestionIcon: {
+    marginRight: 12,
+  },
+  suggestionTextContainer: {
+    flex: 1,
   },
   suggestionName: {
     fontSize: 16,
@@ -386,15 +401,14 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   suggestionDetails: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#666',
-    fontStyle: 'italic',
   },
   loadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 15,
+    paddingVertical: 16,
   },
   loadingText: {
     marginLeft: 10,
@@ -408,7 +422,6 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: '#999',
-    fontStyle: 'italic',
   },
 });
 

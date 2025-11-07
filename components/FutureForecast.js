@@ -44,7 +44,6 @@ const FutureForecast = ({ weatherData }) => {
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,

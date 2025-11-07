@@ -20,11 +20,11 @@ SplashScreen.preventAutoHideAsync(); // Keep the splash screen visible while we 
 const API_KEY = "YOUR_API_KEY";   // Replace with your OpenWeatherMap API key
 
 const weatherGradients = {
-  Clear: ['#87CEEB', '#ADD8E6'],
-  Clouds: ['#A9A9A9', '#D3D3D3'],
-  Rain: ['#4682B4', '#708090'],
+  Clear: ['#1dbaf8b4', '#cd1fec68'],
+  Clouds: ['#c450b877', '#49c5ee9d'],
+  Rain: ['#709fc5ff', '#97c6f6ff'],
   Drizzle: ['#778899', '#B0C4DE'],
-  Thunderstorm: ['#4B0082', '#9370DB'],
+  Thunderstorm: ['#d1bfdeff', '#9370DB'],
   Snow: ['#F0F8FF', '#E6E6FA'],
   Mist: ['#E0E0E0', '#F5F5F5'],
   Fog: ['#E0E0E0', '#F5F5F5'],
