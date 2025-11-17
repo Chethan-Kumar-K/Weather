@@ -1,10 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
 import {useEffect, useState, useCallback, useRef} from 'react';
-import { StyleSheet, Text, View, ImageBackground, Alert, TouchableOpacity, ScrollView,RefreshControl} from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, Alert, TouchableOpacity, ScrollView, RefreshControl} from 'react-native';
 import * as Location from 'expo-location';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
-import { LinearGradient } from 'expo-linear-gradient';
+//import { LinearGradient } from 'expo-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import AppSplash from './components/SplashScreen'; // in-app splash
@@ -19,30 +19,31 @@ SplashScreen.preventAutoHideAsync(); // Keep the splash screen visible while we 
 
 const API_KEY = "YOUR_API_KEY";   // Replace with your OpenWeatherMap API key
 
-const weatherGradients = {
-  Clear: ['#1dbaf8b4', '#cd1fec68'],
-  Clouds: ['#c450b877', '#49c5ee9d'],
-  Rain: ['#709fc5ff', '#97c6f6ff'],
-  Drizzle: ['#778899', '#B0C4DE'],
-  Thunderstorm: ['#d1bfdeff', '#9370DB'],
-  Snow: ['#F0F8FF', '#E6E6FA'],
-  Mist: ['#E0E0E0', '#F5F5F5'],
-  Fog: ['#E0E0E0', '#F5F5F5'],
-  Haze: ['#E0E0E0', '#F5F5F5'],
-  default: ['#87CEEB', '#FFFFFF'],
-};
-//const weatherBackgrounds = {
-//  Clear: require('./assets/backgrounds/clear.jpg'),
-//  Clouds: require('./assets/backgrounds/cloudy.jpg'),
-//  Rain: require('./assets/backgrounds/rainy.jpg'),
-//  Drizzle: require('./assets/backgrounds/drizzle.jpg'),
-//  Thunderstorm: require('./assets/backgrounds/thunderstorm.jpg'),
-//  Snow: require('./assets/backgrounds/snowy.jpg'),
-//  Mist: require('./assets/backgrounds/misty.jpg'),
-//  Fog: require('./assets/backgrounds/misty.jpg'),
-//  Haze: require('./assets/backgrounds/misty.jpg'),
-//  default: require('./assets/weatherBG1.jpg'),
+//const weatherGradients = {
+//  Clear: ['#1dbaf8b4', '#cd1fec68'],
+//  Clouds: ['#c450b877', '#49c5ee9d'],
+//  Rain: ['#709fc5ff', '#97c6f6ff'],
+//  Drizzle: ['#778899', '#B0C4DE'],
+//  Thunderstorm: ['#d1bfdeff', '#9370DB'],
+//  Snow: ['#F0F8FF', '#E6E6FA'],
+//  Mist: ['#E0E0E0', '#F5F5F5'],
+//  Fog: ['#E0E0E0', '#F5F5F5'],
+//  Haze: ['#E0E0E0', '#F5F5F5'],
+//  default: ['#87CEEB', '#FFFFFF'],
 //};
+
+const weatherBackgrounds = {
+  Clear: require('./assets/backgrounds/clear.jpg'),
+  Clouds: require('./assets/backgrounds/cloudy.jpg'),
+  Rain: require('./assets/backgrounds/rainy.jpg'),
+  Drizzle: require('./assets/backgrounds/drizzle.jpg'),
+  Thunderstorm: require('./assets/backgrounds/thunderstorm.jpg'),
+  Snow: require('./assets/backgrounds/snowy.jpg'),
+  Mist: require('./assets/backgrounds/misty.jpg'),
+  Fog: require('./assets/backgrounds/misty.jpg'),
+  Haze: require('./assets/backgrounds/misty.jpg'),
+  default: require('./assets/weatherBG1.jpg'),
+};
 
 export default function App() {
   //const theme = useTheme();
@@ -55,7 +56,7 @@ export default function App() {
    cityName: null
   });
   const [appIsReady, setAppIsReady] = useState(false);
-  const [gradientColors, setGradientColors] = useState(weatherGradients.default);
+  const [backgroundImage, setBackgroundImage] = useState(weatherBackgrounds.default);
   const [menuVisible, setMenuVisible] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -137,7 +138,7 @@ export default function App() {
 // Update gradient based on weather condition
       if (currentData.weather && currentData.weather.length > 0) {
         const weatherCondition = currentData.weather[0].main;
-        setGradientColors(weatherGradients[weatherCondition] || weatherGradients.default);
+        setBackgroundImage(weatherBackgrounds[weatherCondition] || weatherBackgrounds.default);
         console.log('Weather condition:', weatherCondition);
       }
 
@@ -322,8 +323,9 @@ const onRefresh = useCallback(async () => {
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={gradientColors} style={styles.gradient}>
-        <StatusBar style="dark" />
+      <ImageBackground source={backgroundImage} style={styles.backgroundImage} resizeMode="cover">
+        <View style={styles.overlay}>
+          <StatusBar style="light" />
         
         {/* Menu Button */}
         <TouchableOpacity 
@@ -355,8 +357,9 @@ const onRefresh = useCallback(async () => {
             refreshing={refreshing} 
             onRefresh={onRefresh}
           />
-        </ScrollView>
-      </LinearGradient>
+          </ScrollView>
+        </View>
+      </ImageBackground>
 
       {/* Side Menu */}
       <SideMenu 
@@ -374,8 +377,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  gradient: {
+  backgroundImage: {
     flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
   },
   scrollView: {
     flex: 1,
@@ -389,7 +398,7 @@ const styles = StyleSheet.create({
     top: 50,
     left: 20,
     zIndex: 1000,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: 'rgba(252, 252, 252, 0.16)',
     width: 50,
     height: 50,
     borderRadius: 25,

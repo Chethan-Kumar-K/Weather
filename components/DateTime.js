@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
 
@@ -20,7 +20,7 @@ const WeatherMetric = ({ iconName, title, value, unit }) => {
 
   return (
       <Animated.View style={[styles.metricCard, { opacity: fadeAnim }]}>
-        <Icon name={iconName} size={28} color="#007AFF" style={styles.metricIcon} />
+        <Icon name={iconName} size={28} color="#4A90E2" style={styles.metricIcon} />
         <View style={styles.metricContent}>
           <Text style={styles.metricTitle}>{title}</Text>
           <Text style={styles.metricValue}>
@@ -120,25 +120,45 @@ const DateTime = ({current, lat, lon, timezone, locationName}) => {
     }, []);
 
     return(
-    <View style={styles.container}>
-      <View style={styles.mainCard}>
-        <View style={styles.locationContainer}>
-          <Icon name="map-marker" size={20} color="#1a1a1a" style={styles.locationIcon} />
-          <Text style={styles.locationText}>{locationName || 'Current Location'}</Text>
-        </View>
+<View style={styles.container}>
+            <View style={styles.mainCard}>
+                <View style={styles.locationContainer}>
+                    <Icon name="location-sharp" size={20} color="#ffffff" style={styles.locationIcon} />
+                    <Text style={styles.locationText}>{locationName || 'Current Location'}</Text>
+                </View>
 
-        <Animated.View style={[styles.timeContainer, { transform: [{ scale: scaleAnim }] }]}>
-          <Text style={styles.timeText}>{time}</Text>
-          <Text style={styles.dateText}>{date}</Text>
-        </Animated.View>
+                <Animated.View style={[styles.timeContainer, { transform: [{ scale: scaleAnim }] }]}>
+                    <Text style={styles.timeText}>{time}</Text>
+                    <Text style={styles.dateText}>{date}</Text>
+                </Animated.View>
 
-        <View style={[styles.metricsGrid, { flexDirection: width > 400 ? 'row' : 'column', flexWrap: 'wrap' }]}>
-          <WeatherMetric iconName="water-percent" title="Humidity" value={current?.humidity || '--'} unit="%" />
-          <WeatherMetric iconName="gauge" title="Pressure" value={current?.pressure || '--'} unit=" hPa" />
-          <WeatherMetric iconName="weather-sunny" title="Sunrise" value={formatTime(current?.sunrise, timezone) || '--'} unit={` ${getAmPm(current?.sunrise, timezone)}`} />
-          <WeatherMetric iconName="weather-sunset" title="Sunset" value={formatTime(current?.sunset, timezone) || '--'} unit={` ${getAmPm(current?.sunset, timezone)}`} />
-        </View>
-      </View>
+                <View style={styles.metricsGrid}>
+                    <WeatherMetric 
+                        iconName="water" 
+                        title="Humidity" 
+                        value={current?.humidity !== undefined ? current.humidity : '--'} 
+                        unit="%" 
+                    />
+                    <WeatherMetric 
+                        iconName="speedometer" 
+                        title="Pressure" 
+                        value={current?.pressure !== undefined ? current.pressure : '--'} 
+                        unit=" hPa" 
+                    />
+                    <WeatherMetric 
+                        iconName="sunny" 
+                        title="Sunrise" 
+                        value={formatTime(current?.sunrise, timezone) || '--'} 
+                        unit={`${getAmPm(current?.sunrise, timezone)}`} 
+                    />
+                    <WeatherMetric 
+                        iconName="moon" 
+                        title="Sunset" 
+                        value={formatTime(current?.sunset, timezone) || '--'} 
+                        unit={`${getAmPm(current?.sunset, timezone)}`} 
+                    />
+                </View>
+            </View>
 
       <View style={styles.coordsCard}>
         <View style={styles.coordItem}>
@@ -166,14 +186,14 @@ container: {
     paddingBottom: 10 
   },
   mainCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0)',
     borderRadius: 28,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
+    borderColor: 'rgba(255, 255, 255, 0.75)',
+    padding: 25,
+    shadowColor: '#77777701',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
     shadowRadius: 20,
     elevation: 8,
   },
@@ -263,7 +283,7 @@ container: {
   coordLabel: { 
     fontSize: 11, 
     fontWeight: '600', 
-    color: '#5a5a5a', 
+    color: '#0b0b0bff', 
     textTransform: 'uppercase', 
     letterSpacing: 0.5, 
     marginBottom: 4 

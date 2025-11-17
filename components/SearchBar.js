@@ -11,7 +11,7 @@ View,
   ActivityIndicator,
   Animated,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 // Debounce hook to prevent excessive API calls
 const useDebounce = (value, delay) => {
@@ -211,7 +211,7 @@ const SearchBar = ({ onLocationSearch }) => {
       activeOpacity={0.7}
     >
       <View style={styles.suggestionContent}>
-        <Icon name="location-on" size={20} color="#007AFF" style={styles.suggestionIcon} />
+        <Icon name="location-on" size={20} color="#4A90E2" style={styles.suggestionIcon} />
         <View style={styles.suggestionTextContainer}>
           <Text style={styles.suggestionName}>{item.name}</Text>
           <Text style={styles.suggestionDetails}>{item.country}</Text>
@@ -258,7 +258,7 @@ const SearchBar = ({ onLocationSearch }) => {
          
           {searchText.length > 0 && (
             <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
-              <Icon name="close" size={20} color="#666" />
+              <Icon name="close-circle" size={20} color="#666" />
             </TouchableOpacity>
           )}
         </View>

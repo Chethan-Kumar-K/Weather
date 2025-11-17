@@ -11,7 +11,7 @@ import {
   SafeAreaView,
   Switch,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
 const MENU_WIDTH = width * 0.75; // 75% of screen width
@@ -36,13 +36,13 @@ const SideMenu = ({ visible, onClose, onMenuItemPress, notificationsEnabled, onN
   }, [visible]);
 
 const menuItems = [
-  { id: 'current', icon: 'my-location', title: 'Current Location', subtitle: 'Get weather at your location', type: 'item' },
+  { id: 'current', icon: 'navigate-circle', title: 'Current Location', subtitle: 'Get weather at your location', type: 'item' },
   { id: 'notifications', icon: 'notifications', title: 'Notifications', subtitle: 'Daily weather updates', type: 'toggle' },
   { id: 'favorites', icon: 'star', title: 'Favorite Locations', subtitle: 'Manage saved locations', type: 'item'},
-  { id: 'units', icon: 'thermostat', title: 'Temperature Units', subtitle: 'Celsius / Fahrenheit', type: 'item' },
+  { id: 'units', icon: 'thermometer', title: 'Temperature Units', subtitle: 'Celsius / Fahrenheit', type: 'item' },
   { id: 'refresh', icon: 'refresh', title: 'Refresh Weather', subtitle: 'Update current data', type: 'item' },
   { id: 'settings', icon: 'settings', title: 'Settings', subtitle: 'App preferences', type: 'item' },
-  { id: 'about', icon: 'info', title: 'About', subtitle: 'App version & info', type: 'item' },
+  { id: 'about', icon: 'information-circle', title: 'About', subtitle: 'App version & info', type: 'item' },
 ];
 
   const handleItemPress = (itemId) => {
