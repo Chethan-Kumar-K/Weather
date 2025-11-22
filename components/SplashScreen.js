@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions, Text } from 'react-native';
 import LottieView from 'lottie-react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -7,12 +7,9 @@ const { width, height } = Dimensions.get('window');
 const AppSplash = () => {
   return (
     <View style={styles.container}>
-      <LottieView
-        source={{ uri: 'https://assets9.lottiefiles.com/packages/lf20_j1dawwgj.json' }} // Add your Lottie file
-        autoPlay
-        loop
-        style={styles.animation}
-      />
+      <Text style={styles.icon}>☀️</Text>
+      <Text style={styles.title}>Weather App</Text>
+      <Text style={styles.subtitle}>Loading...</Text>
     </View>
   );
 };
@@ -26,9 +23,20 @@ const styles = StyleSheet.create({
     width: width,
     height: height,
   },
-  animation: {
-    width: width * 0.8,
-    height: height * 0.8,
+  icon: {
+    fontSize: 120,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#ffffff',
+    fontStyle: 'italic',
   },
 });
 

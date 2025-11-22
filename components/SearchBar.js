@@ -11,7 +11,7 @@ View,
   ActivityIndicator,
   Animated,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+//import Icon from 'react-native-vector-icons/Ionicons';
 
 // Debounce hook to prevent excessive API calls
 const useDebounce = (value, delay) => {
@@ -211,7 +211,7 @@ const SearchBar = ({ onLocationSearch }) => {
       activeOpacity={0.7}
     >
       <View style={styles.suggestionContent}>
-        <Icon name="location-on" size={20} color="#4A90E2" style={styles.suggestionIcon} />
+        <Text style={styles.suggestionIconText}>📍</Text>
         <View style={styles.suggestionTextContainer}>
           <Text style={styles.suggestionName}>{item.name}</Text>
           <Text style={styles.suggestionDetails}>{item.country}</Text>
@@ -236,7 +236,7 @@ const SearchBar = ({ onLocationSearch }) => {
    <View style={styles.container}>
      <View style={styles.searchWrapper}>
         <View style={styles.searchContainer}>
-          <Icon name="search" size={20} color="#666" style={{ marginRight: 8 }} />
+          <Text style={styles.searchIconText}>🔍</Text>
           <TextInput
             ref={inputRef}
             style={styles.textInput}
@@ -258,7 +258,7 @@ const SearchBar = ({ onLocationSearch }) => {
          
           {searchText.length > 0 && (
             <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
-              <Icon name="close-circle" size={20} color="#666" />
+              <Text style={styles.clearIcon}>✕</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -269,7 +269,7 @@ const SearchBar = ({ onLocationSearch }) => {
           disabled={isLoading}
           activeOpacity={0.8}
         >
-          <Icon name="arrow-forward" size={22} color="#fff" />
+          <Text style={styles.arrowIcon}>→</Text>
         </TouchableOpacity>
       </View>
 
@@ -331,8 +331,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  searchIcon: {
+  searchIconText: {
     marginRight: 10,
+    fontSize: 20,
   },
   textInput: {
     flex: 1,
@@ -343,6 +344,10 @@ const styles = StyleSheet.create({
   clearButton: {
     padding: 5,
     marginLeft: 5,
+  },
+  clearIcon: {
+    fontSize: 20,
+    color: '#666',
   },
   searchButton: {
     backgroundColor: '#007AFF',
@@ -359,6 +364,11 @@ const styles = StyleSheet.create({
   },
   searchButtonDisabled: {
     backgroundColor: '#999',
+  },
+  arrowIcon: {
+    fontSize: 22,
+    color: '#fff',
+    fontWeight: 'bold',
   },
   suggestionsContainer: {
     position: 'absolute',
@@ -388,8 +398,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  suggestionIcon: {
+  suggestionIconText: {
     marginRight: 12,
+    fontSize: 20,
   },
   suggestionTextContainer: {
     flex: 1,

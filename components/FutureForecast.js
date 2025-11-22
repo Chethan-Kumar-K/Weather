@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, FlatList, Dimensions } from 'react-native';
 
-const { width } = Dimensions.get('window');
+//const { width } = Dimensions.get('window');
 
 const FutureForecast = ({ weatherData }) => {
   if (!weatherData || weatherData.length === 0) {

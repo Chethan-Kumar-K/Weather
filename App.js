@@ -5,7 +5,7 @@ import * as Location from 'expo-location';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
 //import { LinearGradient } from 'expo-linear-gradient';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+//import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import AppSplash from './components/SplashScreen'; // in-app splash
 import DateTime from './components/DateTime';
@@ -18,19 +18,6 @@ import notificationService from './services/notificationService';
 SplashScreen.preventAutoHideAsync(); // Keep the splash screen visible while we fetch resources
 
 const API_KEY = "YOUR_API_KEY";   // Replace with your OpenWeatherMap API key
-
-//const weatherGradients = {
-//  Clear: ['#1dbaf8b4', '#cd1fec68'],
-//  Clouds: ['#c450b877', '#49c5ee9d'],
-//  Rain: ['#709fc5ff', '#97c6f6ff'],
-//  Drizzle: ['#778899', '#B0C4DE'],
-//  Thunderstorm: ['#d1bfdeff', '#9370DB'],
-//  Snow: ['#F0F8FF', '#E6E6FA'],
-//  Mist: ['#E0E0E0', '#F5F5F5'],
-//  Fog: ['#E0E0E0', '#F5F5F5'],
-//  Haze: ['#E0E0E0', '#F5F5F5'],
-//  default: ['#87CEEB', '#FFFFFF'],
-//};
 
 const weatherBackgrounds = {
   Clear: require('./assets/backgrounds/clear.jpg'),
@@ -155,14 +142,14 @@ export default function App() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         console.log('Location permission denied, using default location');
-        return await fetchDataFromApi(40.7128, -74.0060); // New York coordinates
+        return await fetchDataFromApi(12.9629, 77.5775); // Bengaluru coordinates
       }
 
       const location = await Location.getCurrentPositionAsync({});
       return await fetchDataFromApi(location.coords.latitude, location.coords.longitude);
     } catch (error) {
       console.error('Error getting location:', error);
-      return await fetchDataFromApi(40.7128, -74.0060); // Fallback to New York
+      return await fetchDataFromApi(12.9629, 77.5775); // Fallback to Bengaluru coordinates
     }
   };
 
@@ -188,19 +175,6 @@ export default function App() {
     }
     prepare();
   }, [])
-
- // const onLayoutRootView = useCallback(async () => {
- //   if (appIsReady) {
- //     // Hide splash screen once layout is ready
- //     await SplashScreen.hideAsync().catch(console.warn);
- //   }
- // }, [appIsReady]);
-//
- // if (!appIsReady) {
- // //  return null;
- // // show the in-app splash component while native splash is still visible
- //   return <AppSplash />;
- // }
 
  const searchLocationWeather = async (locationName) => {
     try {
@@ -333,7 +307,7 @@ const onRefresh = useCallback(async () => {
           onPress={() => setMenuVisible(true)}
           activeOpacity={0.8}
         >
-          <Icon name="menu" size={28} color="#3b3f40" />
+          <Text style={styles.menuIcon}>☰</Text>
         </TouchableOpacity>
 
         {/* Main Content */}
@@ -412,5 +386,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
+  },
+  menuIcon: {
+    fontSize: 24,
+    color: '#3b3f40',
+    fontWeight: 'bold',
   }
 });

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native'
-import Icon from 'react-native-vector-icons/Ionicons';
+//import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
 
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const WeatherMetric = ({ iconName, title, value, unit }) => {
+const WeatherMetric = ({ icon, title, value, unit }) => {
   const fadeAnim = new Animated.Value(0);
 
   useEffect(() => {
@@ -20,7 +20,7 @@ const WeatherMetric = ({ iconName, title, value, unit }) => {
 
   return (
       <Animated.View style={[styles.metricCard, { opacity: fadeAnim }]}>
-        <Icon name={iconName} size={28} color="#4A90E2" style={styles.metricIcon} />
+        <Text style={styles.metricIconText}>{icon}</Text>
         <View style={styles.metricContent}>
           <Text style={styles.metricTitle}>{title}</Text>
           <Text style={styles.metricValue}>
@@ -31,14 +31,6 @@ const WeatherMetric = ({ iconName, title, value, unit }) => {
       </Animated.View>
   );
 };
-//const WeatherItem = ({title, value, unit}) => {
-//    return(
-//        <View style={styles.weatherItem}>
-//            <Text style={styles.weatherItemValue}>{title}</Text>
-//            <Text style={styles.weatherItemValue}>{value}{unit}</Text>
-//        </View>
-//    )
-//}
 
 const DateTime = ({current, lat, lon, timezone, locationName}) => {
     const [date, setDate] = useState('')
@@ -123,7 +115,7 @@ const DateTime = ({current, lat, lon, timezone, locationName}) => {
 <View style={styles.container}>
             <View style={styles.mainCard}>
                 <View style={styles.locationContainer}>
-                    <Icon name="location-sharp" size={20} color="#ffffff" style={styles.locationIcon} />
+                    <Text style={styles.locationIcon}>📍</Text>
                     <Text style={styles.locationText}>{locationName || 'Current Location'}</Text>
                 </View>
 
@@ -134,25 +126,25 @@ const DateTime = ({current, lat, lon, timezone, locationName}) => {
 
                 <View style={styles.metricsGrid}>
                     <WeatherMetric 
-                        iconName="water" 
+                        icon="💧" 
                         title="Humidity" 
                         value={current?.humidity !== undefined ? current.humidity : '--'} 
                         unit="%" 
                     />
                     <WeatherMetric 
-                        iconName="speedometer" 
+                        icon="🌡️"
                         title="Pressure" 
                         value={current?.pressure !== undefined ? current.pressure : '--'} 
                         unit=" hPa" 
                     />
                     <WeatherMetric 
-                        iconName="sunny" 
+                        icon="🌅" 
                         title="Sunrise" 
                         value={formatTime(current?.sunrise, timezone) || '--'} 
                         unit={`${getAmPm(current?.sunrise, timezone)}`} 
                     />
                     <WeatherMetric 
-                        iconName="moon" 
+                        icon="🌙" 
                         title="Sunset" 
                         value={formatTime(current?.sunset, timezone) || '--'} 
                         unit={`${getAmPm(current?.sunset, timezone)}`} 
@@ -203,10 +195,11 @@ container: {
     marginBottom: 20 
   },
   locationIcon: { 
-    marginRight: 8 
+    marginRight: 8,
+    fontSize: 20, 
   },
   locationText: { 
-    fontSize: 22, 
+    fontSize: 40,
     fontWeight: '700', 
     color: '#1a1a1a', 
     letterSpacing: 0.5 
@@ -215,7 +208,7 @@ container: {
     marginBottom: 24 
   },
   timeText: { 
-    fontSize: 56, 
+    fontSize: 36, 
     fontWeight: '800', 
     color: '#1a1a1a', 
     letterSpacing: -2, 
@@ -230,12 +223,14 @@ container: {
   metricsGrid: { 
     gap: 12, 
     marginTop: 8,
-    justifyContent: 'space-between'
+    flexDirection: 'row', 
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
   metricCard: {
     flex: 1,
     minWidth: '45%',
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    backgroundColor: 'rgba(255, 255, 255, 0.63)',
     borderRadius: 16,
     padding: 14,
     flexDirection: 'row',
@@ -243,8 +238,9 @@ container: {
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.5)',
   },
-  metricIcon: { 
-    marginRight: 12 
+  metricIconText: { 
+    marginRight: 12, 
+    fontSize: 28,
   },
   metricContent: {
     flex: 1 
@@ -252,7 +248,7 @@ container: {
   metricTitle: { 
     fontSize: 12, 
     fontWeight: '600', 
-    color: '#5a5a5a', 
+    color: '#1d1d1dff', 
     textTransform: 'uppercase', 
     letterSpacing: 0.5, 
     marginBottom: 2 
